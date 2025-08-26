@@ -1,0 +1,24 @@
+#root {
+  margin: 0 auto;
+}
+
+.width-limit {
+  max-width: 2200px;
+}
+
+.background-secondary-color {
+  color: #4a5568;
+}
+
+.background-primary-color {
+  background-color: #e84b3d;
+}
+
+.border-secondary-color {
+  border: 2px solid #e84b3d;
+  border-radius: 10px;
+}
+
+.highlight {
+  color: #3d84e8;
+}

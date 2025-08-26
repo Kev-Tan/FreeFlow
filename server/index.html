@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NBA Player Stats</title>
+  </head>
+  <body>
+    <h1>NBA Player Career Stats</h1>
+    <input type="text" id="playerName" placeholder="Enter player name" />
+    <button onclick="fetchStats()">Get Stats</button>
+
+    <pre id="output"></pre>
+
+    <script>
+      async function fetchStats() {
+        const name = document.getElementById("playerName").value.trim();
+        const output = document.getElementById("output");
+
+        if (!name) {
+          alert("Please enter a player name");
+          return;
+        }
+
+        output.textContent = "Loading...";
+
+        try {
+          const res = await fetch(
+            `http://127.0.0.1:5000/player-career-stats/?player_name=${encodeURIComponent(
+              name
+            )}`
+          );
+
+          if (!res.ok) {
+            const error = await res.json();
+            output.textContent = `Error: ${error.detail}`;
+            return;
+          }
+
+          const data = await res.json();
+          output.textContent = JSON.stringify(data, null, 2);
+        } catch (err) {
+          output.textContent = "Error: " + err.message;
+        }
+      }
+    </script>
+  </body>
+</html>
