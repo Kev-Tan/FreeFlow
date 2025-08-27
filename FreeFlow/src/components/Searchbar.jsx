@@ -1,88 +1,25 @@
-import { useState } from "react";
 import "../App.css";
+import usePlayerStats from "../hooks/usePlayerStats";
 
 function Searchbar(props) {
-  const [playerName, setPlayerName] = useState("");
-  const [error, setError] = useState(null);
+  const { playerName, setPlayerName, error, fetchPlayerStats } =
+    usePlayerStats();
 
   async function handleSubmit(e) {
     e.preventDefault();
-    setError(null);
     props.setStats(null);
 
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:5000/player-career-stats/?player_name=${encodeURIComponent(
-          playerName
-        )}`
-      );
+    const result = await fetchPlayerStats();
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch stats");
-      }
-
-      props.setStats(data);
-      console.log("Raw API data:", data);
-
-      let miss = 0;
-      let enter = 0;
-
-      // Group shots by similar coordinates
-      const locationMap = new Map();
-      const groupingRadius = 0.3; // feet
-
-      data.shot_chart.forEach((shot) => {
-        const x = shot.LOC_X / 12 + 25; // recenter: half-court width = 25ft
-        const y = shot.LOC_Y / 12 + 5; // baseline offset ~5ft
-
-        // count makes/misses
-        if (shot.SHOT_MADE_FLAG === 1) {
-          enter++;
-        } else {
-          miss++;
-        }
-
-        // make a grouping key
-        const key = `${Math.round(x / groupingRadius) * groupingRadius},${
-          Math.round(y / groupingRadius) * groupingRadius
-        }`;
-
-        if (!locationMap.has(key)) {
-          locationMap.set(key, { x, y, made: 0, attempts: 0 });
-        }
-
-        const group = locationMap.get(key);
-        group.attempts += 1;
-        group.made += shot.SHOT_MADE_FLAG;
-      });
-
-      // finalize
-      const shotsData = Array.from(locationMap.values()).map((g) => ({
-        ...g,
-        efficiency: g.made / g.attempts,
-        z: g.made / g.attempts, // currently z = shooting %
-      }));
-
-      // console.log("Original shots count:", data.shot_chart.length);
-      // console.log("Grouped locations count:", shotsData.length);
-      // console.log("Processed shotsData:", shotsData);
-      // console.log(`Total makes: ${enter}, Total misses: ${miss}`);
-
+    if (result) {
+      const { stats, shotsData, miss, enter, mins, age } = result;
       props.setShotsData(shotsData);
-      console.log(shotsData);
-
       props.setMiss(miss);
       props.setEnter(enter);
-      props.setStats(data);
+      props.setStats(stats);
 
-      const lastSeason = data.career_stats[data.career_stats.length - 1];
-      if (lastSeason) {
-        props.setMins(lastSeason.MIN);
-        props.setAge(lastSeason.PLAYER_AGE);
-      }
-    } catch (err) {
-      setError(err.message);
+      if (mins !== undefined) props.setMins(mins);
+      if (age !== undefined) props.setAge(age);
     }
   }
 
