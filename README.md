@@ -67,5 +67,5 @@ python test.py
 3. View the generated shot chart and statistics
 4. Interact with the visualization to explore different aspects of the player's shooting patterns
 
-##Special Thanks
+## Special Thanks
 Special thanks to Jed Ong, whose article (https://jedong.medium.com/generating-a-d3-js-based-nba-shot-chart-e540040e8ecb) was invaluable in helping me creating this project
